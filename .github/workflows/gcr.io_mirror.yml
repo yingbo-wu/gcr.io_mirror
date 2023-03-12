@@ -49,16 +49,16 @@ jobs:
               return
             }
             let validLabels=false
-            for(let issues of openIssues['data']){
-                for(let labels of issues["labels"]){
-                  if(labels["name"]=="porter" || labels["name"]=="question"){
+            for (let issues of openIssues['data']) {
+                for (let labels of issues["labels"]) {
+                  if (labels["name"] == "porter" || labels["name"] == "question") {
                     validLabels=true
                   }
                 }
                 if(validLabels){
                   continue
                 }
-                await  github.issues.createComment({
+                await github.issues.createComment({
                   owner: '${{ github.repository_owner }}',
                   repo: '${{ github.event.repository.name }}',
                   issue_number: issues["number"],
