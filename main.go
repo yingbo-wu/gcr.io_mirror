@@ -321,5 +321,5 @@ func getIssues(cli * github.Client, ctx context.Context, config * Config)([] * g
         // 考虑了下，每次还是只允许转一个吧
         ListOptions: github.ListOptions{ Page: 1, PerPage: 1 },
     })
-	return issues, err
+    return issues, err
 }
