@@ -52,10 +52,10 @@ jobs:
             for (let issues of openIssues['data']) {
                 for (let labels of issues["labels"]) {
                   if (labels["name"] == "porter" || labels["name"] == "question") {
-                    validLabels=true
+                    validLabels = true
                   }
                 }
-                if(validLabels){
+                if (validLabels) {
                   continue
                 }
                 await github.issues.createComment({
