@@ -246,8 +246,8 @@ func dockerLogin(config * Config)(* client.Client, context.Context, error) {
     fmt.Println("docker login, server: ", config.Registry, " user: ", config.RegistryUserName, ", password: ***")
     authConfig := types.AuthConfig{
         Username: config.RegistryUserName,
-            Password: config.RegistryPassword,
-                ServerAddress: config.Registry,
+        Password: config.RegistryPassword,
+        ServerAddress: config.Registry
     }
     ctx := context.Background()
     _, err = cli.RegistryLogin(ctx, authConfig)
@@ -275,7 +275,7 @@ func dockerPush(targetImageName string, cli * client.Client, ctx context.Context
     fmt.Println("docker push ", targetImageName)
     authConfig := types.AuthConfig{
         Username: config.RegistryUserName,
-            Password: config.RegistryPassword,
+        Password: config.RegistryPassword
     }
     if len(config.Registry) > 0 {
         authConfig.ServerAddress = config.Registry
