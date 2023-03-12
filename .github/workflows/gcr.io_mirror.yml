@@ -33,7 +33,7 @@ jobs:
         id: check_issues
         uses: actions/github-script@v3.1.0
         with:
-          github-token: ${{secrets.MY_GITHUB_TOKEN }}
+          github-token: ${{ secrets.MY_GITHUB_TOKEN }}
           script: | 
             const openIssues = await github.issues.listForRepo({
                   owner: '${{ github.repository_owner }}',
