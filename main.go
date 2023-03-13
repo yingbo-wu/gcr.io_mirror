@@ -199,8 +199,8 @@ func mirrorByIssues(issues *github.Issue, config *Config) (err error, originImag
     }
 
     if strings.ContainsAny(originImageName, "@") {
-        originImageName = genOriginImageNameByDigest(originImageName, targetImageName, cli, ctx)
-        targetImageName, err = genTargetImageNameByDigest(targetImageName, targetImageName, cli, ctx)
+        originImageName = genOriginImageNameByDigest(originImageName, cli, ctx)
+        targetImageName, err = genTargetImageNameByDigest(targetImageName, cli, ctx)
         if err != nil {
             return errors.New("@" + *issues.GetUser().Login + " ,docker images 报错 `" + err.Error() + "`"), originImageName, targetImageName
         }
