@@ -199,7 +199,7 @@ func mirrorByIssues(issues *github.Issue, config *Config) (err error, originImag
     }
 
     if strings.ContainsAny(originImageName, "@") {
-        targetImageName, err = reGenTargetImageNameByDigest(originImageName, targetImageName, cli, ctx)
+        originImageName, targetImageName, err = reGenOriginImageNameAndTargetImageNameByDigest(originImageName, targetImageName, cli, ctx)
         if err != nil {
             return errors.New("@" + *issues.GetUser().Login + " ,docker images 报错 `" + err.Error() + "`"), originImageName, targetImageName
         }
@@ -246,14 +246,16 @@ func genTargetImageName(originImageName string, config *Config) (string, error) 
     return targetImageName, nil
 }
 
-func reGenTargetImageNameByDigest(originImageName string, targetImageName string, cli *client.Client, ctx context.Context) (string, error) {
+func reGenOriginImageNameAndTargetImageNameByDigest(originImageName string, targetImageName string, cli *client.Client, ctx context.Context) (string, string, error) {
     images, err := dockerImages(originImageName, cli, ctx)
     if err != nil {
-        return "", err
+        return "", "", err
     }
-    imageNameSlice := strings.Split(originImageName, "@")
-    fmt.Println("%#v\n", imageNameSlice)
-    imageDigest := imageNameSlice[1]
+    originImageNameSlice := strings.Split(originImageName, "@")
+    fmt.Println("%#v\n", originImageNameSlice)
+    targetImageNameSlice := strings.Split(targetImageName, "@")
+    fmt.Println("%#v\n", targetImageNameSlice)
+    imageDigest := originImageNameSlice[1]
     fmt.Println(imageDigest)
     for _, image := range images {
         fmt.Println(image.ID)
@@ -261,7 +263,9 @@ func reGenTargetImageNameByDigest(originImageName string, targetImageName string
         fmt.Println("%#v\n", image.RepoDigests)
         for i, digest := range image.RepoDigests {
             if digest == imageDigest {
-                return image.RepoTags[i], nil
+                originImageName := originImageNameSlice[0] + ":" + image.RepoTags[i]
+                targetImageName := targetImageNameSlice[0] + ":" + image.RepoTags[i]
+                return originImageName, targetImageName, nil
             }
         }
     }
