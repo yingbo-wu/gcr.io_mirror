@@ -297,7 +297,7 @@ func dockerImages(originImageName string, cli *client.Client, ctx context.Contex
     if err != nil {
         return nil, err
     }
-    return images, err
+    return images, nil
 }
 
 func dockerPull(originImageName string, cli *client.Client, ctx context.Context) error {
