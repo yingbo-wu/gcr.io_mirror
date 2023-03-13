@@ -199,11 +199,8 @@ func mirrorByIssues(issues *github.Issue, config *Config) (err error, originImag
     }
 
     if strings.ContainsAny(originImageName, "@") {
-        originImageName, err = genDigestImageName(originImageName, targetImageName, cli, ctx)
-        if err != nil {
-            return errors.New("@" + *issues.GetUser().Login + " ,docker images 报错 `" + err.Error() + "`"), originImageName, targetImageName
-        }
-        targetImageName, err = genDigestImageName(targetImageName, targetImageName, cli, ctx)
+        originImageName = genOriginImageNameByDigest(originImageName, targetImageName, cli, ctx)
+        targetImageName, err = genTargetImageNameByDigest(targetImageName, targetImageName, cli, ctx)
         if err != nil {
             return errors.New("@" + *issues.GetUser().Login + " ,docker images 报错 `" + err.Error() + "`"), originImageName, targetImageName
         }
@@ -245,8 +242,15 @@ func genTargetImageName(originImageName string, config *Config) (string, error) 
     return targetImageName, nil
 }
 
-func genDigestImageName(imageName string, cli *client.Client, ctx context.Context) (string, error) {
-    imageNameSlice := strings.Split(imageName, "@")
+func genOriginImageNameByDigest(originImageName string, cli *client.Client, ctx context.Context) string {
+    imageNameSlice := strings.Split(originImageName, "@")
+    fmt.Println("%#v\n", imageNameSlice)
+    imageName := imageNameSlice[0]
+    return imageName
+}
+
+func genTargetImageNameByDigest(targetImageName string, cli *client.Client, ctx context.Context) (string, error) {
+    imageNameSlice := strings.Split(targetImageName, "@")
     images, err := dockerImages(imageNameSlice[0], cli, ctx)
     if err != nil {
         return "", err
@@ -259,13 +263,15 @@ func genDigestImageName(imageName string, cli *client.Client, ctx context.Contex
         fmt.Println("%#v", image.RepoTags)
         fmt.Println("%#v", image.RepoDigests)
         for i, digest := range image.RepoDigests {
+            fmt.Println("image name: ", targetImageName, " digest: ", digest)
             if digest == imageDigest {
-                imageName := imageNameSlice[0] + ":" + image.RepoTags[i]
-                return imageName, nil
+                imageTag := strings.Split(digest, ":")
+                targetImageName := imageNameSlice[0] + ":" + imageTag[1]
+                return targetImageName, nil
             }
         }
     }
-    return imageName, nil
+    return targetImageName, nil
 }
 
 func dockerLogin(config *Config) (*client.Client, context.Context, error) {
