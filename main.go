@@ -51,8 +51,8 @@ func main() {
             "^k8s.gcr.io": "google-containers",
             "^registry.k8s.io": "google-containers",
             "^quay.io": "quay",
-            "^ghcr.io": "ghcr"
-        }
+            "^ghcr.io": "ghcr",
+        },
     }
 
     rulesFile, err := ioutil.ReadFile("rules.yaml")
@@ -111,7 +111,7 @@ func main() {
         TargetImageName: targetImageName,
         GhUser: * ghUser,
         Repo: * ghRepo,
-        RunId: * runId
+        RunId: * runId,
     }
 
     var buf bytes.Buffer
@@ -247,7 +247,7 @@ func dockerLogin(config * Config)(* client.Client, context.Context, error) {
     authConfig := types.AuthConfig{
         Username: config.RegistryUserName,
         Password: config.RegistryPassword,
-        ServerAddress: config.Registry
+        ServerAddress: config.Registry,
     }
     ctx := context.Background()
     _, err = cli.RegistryLogin(ctx, authConfig)
@@ -275,7 +275,7 @@ func dockerPush(targetImageName string, cli * client.Client, ctx context.Context
     fmt.Println("docker push ", targetImageName)
     authConfig := types.AuthConfig{
         Username: config.RegistryUserName,
-        Password: config.RegistryPassword
+        Password: config.RegistryPassword,
     }
     if len(config.Registry) > 0 {
         authConfig.ServerAddress = config.Registry
