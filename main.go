@@ -181,7 +181,10 @@ func commentIssues(issues *github.Issue, cli *github.Client, ctx context.Context
 func mirrorByIssues(issues *github.Issue, config *Config) (err error, originImageName string, targetImageName string) {
     // 去掉前缀 [PORTER] 整体去除前后空格
     originImageName = strings.TrimSpace(strings.Replace(*issues.Title, "[PORTER]", "", 1))
-    targetImageName = genTargetImageName(originImageName)
+    targetImageName, err = genTargetImageName(originImageName, config)
+    if err != nil {
+        return errors.New("@" + config.GhUser + " ,gen target image name 报错 `" + err.Error() + "`"), originImageName, targetImageName
+    }
 
     //execCmd("docker", "login", config.Registry, "-u", config.RegistryUserName, "-p", config.RegistryPassword)
     cli, ctx, err := dockerLogin(config)
@@ -191,13 +194,15 @@ func mirrorByIssues(issues *github.Issue, config *Config) (err error, originImag
 
     //execCmd("docker", "pull", originImageName)
     err = dockerPull(originImageName, cli, ctx)
-
     if err != nil {
         return errors.New("@" + *issues.GetUser().Login + " ,docker pull 报错 `" + err.Error() + "`"), originImageName, targetImageName
     }
 
     if strings.ContainsAny(originImageName, "@") {
-        targetImageName = reGenTargetImageNameByDigest(originImageName, targetImageName, cli, ctx)
+        targetImageName, err = reGenTargetImageNameByDigest(originImageName, targetImageName, cli, ctx)
+        if err != nil {
+            return errors.New("@" + *issues.GetUser().Login + " ,docker images 报错 `" + err.Error() + "`"), originImageName, targetImageName
+        }
     }
 
     //execCmd("docker", "tag", originImageName, targetImageName)
@@ -215,8 +220,8 @@ func mirrorByIssues(issues *github.Issue, config *Config) (err error, originImag
     return nil, originImageName, targetImageName
 }
 
-func genTargetImageName(originImageName string) string {
-    targetImageName = originImageName
+func genTargetImageName(originImageName string, config *Config) (string, error) {
+    targetImageName := originImageName
 
     registrys := []string{}
     for k, v := range config.Rules {
@@ -225,7 +230,7 @@ func genTargetImageName(originImageName string) string {
     }
 
     if strings.EqualFold(targetImageName, originImageName) {
-        return errors.New("@" + *issues.GetUser().Login + " 暂不支持同步" + originImageName + ",目前仅支持同步 `" + strings.Join(registrys, " ,") + "`镜像"), originImageName, targetImageName
+        return "", errors.New("暂不支持同步" + originImageName + ",目前仅支持同步 `" + strings.Join(registrys, " ,") + "`镜像")
     }
 
     targetImageName = strings.ReplaceAll(targetImageName, "/", ".")
@@ -238,13 +243,13 @@ func genTargetImageName(originImageName string) string {
     }
 
     fmt.Println("source:", originImageName, " , target:", targetImageName)
-    return targetImageName
+    return targetImageName, nil
 }
 
-func reGenTargetImageNameByDigest(originImageName string, targetImageName string, cli *client.Client, ctx context.Context) string {
-    images, err = dockerImages(originImageName, cli, ctx)
+func reGenTargetImageNameByDigest(originImageName string, targetImageName string, cli *client.Client, ctx context.Context) (string, error) {
+    images, err := dockerImages(originImageName, cli, ctx)
     if err != nil {
-        return errors.New("@" + *issues.GetUser().Login + " ,docker images 报错 `" + err.Error() + "`"), originImageName, targetImageName
+        return "", err
     }
     imageNameSlice := strings.Split(originImageName, "@")
     fmt.Println("%#v\n", imageNameSlice)
@@ -256,7 +261,7 @@ func reGenTargetImageNameByDigest(originImageName string, targetImageName string
         fmt.Println("%#v\n", image.RepoDigests)
         for i, digest := range image.RepoDigests {
             if digest == imageDigest {
-                return image.RepoTags[i]
+                return image.RepoTags[i], nil
             }
         }
     }
@@ -281,11 +286,11 @@ func dockerLogin(config *Config) (*client.Client, context.Context, error) {
     return cli, ctx, nil
 }
 
-func dockerImages(originImageName string, cli *client.Client, ctx context.Context) {
+func dockerImages(originImageName string, cli *client.Client, ctx context.Context) ([]types.ImageSummary, error) {
     fmt.Println("docker images ", originImageName)
     images, err := cli.ImageTag(ctx, types.ImagePullOptions{})
     if err != nil {
-        return err
+        return nil, err
     }
     return images, err
 }
