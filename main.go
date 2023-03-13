@@ -269,6 +269,7 @@ func reGenOriginImageNameAndTargetImageNameByDigest(originImageName string, targ
             }
         }
     }
+    return originImageName, targetImageName, nil
 }
 
 func dockerLogin(config *Config) (*client.Client, context.Context, error) {
