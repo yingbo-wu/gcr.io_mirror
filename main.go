@@ -186,9 +186,9 @@ func mirrorByIssues(issues * github.Issue, config * Config)(err error, originIma
     originImageName = strings.TrimSpace(strings.Replace(* issues.Title, "[PORTER]", "", 1))
     targetImageName = originImageName
 
-    // if strings.ContainsAny(originImageName, "@") {
-    //     return errors.New("@" + * issues.GetUser().Login + " 不支持同步带摘要信息的镜像"), originImageName, targetImageName
-    // }
+    //if strings.ContainsAny(originImageName, "@") {
+    //    return errors.New("@" + * issues.GetUser().Login + " 不支持同步带摘要信息的镜像"), originImageName, targetImageName
+    //}
 
     registrys := []string{ }
     for k, v := range config.Rules {
