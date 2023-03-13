@@ -262,7 +262,7 @@ func genTargetImageNameByDigest(targetImageName string, cli *client.Client, ctx 
         fmt.Println(image.ID)
         fmt.Println("%#v", image.RepoTags)
         fmt.Println("%#v", image.RepoDigests)
-        for i, digest := range image.RepoDigests {
+        for _, digest := range image.RepoDigests {
             fmt.Println("image name: ", targetImageName, " digest: ", digest)
             if digest == imageDigest {
                 imageTag := strings.Split(digest, ":")
