@@ -200,7 +200,6 @@ func mirrorByIssues(issues *github.Issue, config *Config) (err error, originImag
     }
 
     if strings.ContainsAny(originImageName, "@") {
-        originImageName = genOriginImageNameByDigest(originImageName, cli, ctx)
         targetImageName = genTargetImageNameByDigest(targetImageName, cli, ctx)
     }
 
@@ -238,13 +237,6 @@ func genTargetImageName(originImageName string, config *Config) (string, error) 
     }
     fmt.Println("source:", originImageName, " , target:", targetImageName)
     return targetImageName, nil
-}
-
-func genOriginImageNameByDigest(originImageName string, cli *client.Client, ctx context.Context) string {
-    imageNameSlice := strings.Split(originImageName, "@")
-    fmt.Println("%#v\n", imageNameSlice)
-    originImageName = imageNameSlice[0]
-    return originImageName
 }
 
 func genTargetImageNameByDigest(targetImageName string, cli *client.Client, ctx context.Context) string {
