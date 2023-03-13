@@ -297,9 +297,10 @@ func dockerLogin(config *Config) (*client.Client, context.Context, error) {
 func dockerImages(imageName string, cli *client.Client, ctx context.Context) ([]types.ImageSummary, error) {
     fmt.Println("docker images, filter: ", imageName)
     images, err := cli.ImageList(ctx, types.ImageListOptions{
-        Filters: filters.Args{
-            Reference: imageName,
-        },
+        Filters: filters.NewArgs(filters.KeyValuePair{
+            Key:   "reference",
+            Value: imageName,
+        }),
     })
     if err != nil {
         return nil, err
