@@ -293,7 +293,7 @@ func dockerLogin(config *Config) (*client.Client, context.Context, error) {
 
 func dockerImages(originImageName string, cli *client.Client, ctx context.Context) ([]types.ImageSummary, error) {
     fmt.Println("docker images ", originImageName)
-    images, err := cli.ImageTag(ctx, types.ImagePullOptions{})
+    images, err := cli.ImageTag(ctx, types.ImageListOptions{})
     if err != nil {
         return nil, err
     }
