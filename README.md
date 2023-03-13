@@ -66,7 +66,7 @@ Fork/分叉代码自行维护
 
 `DOCKER_NAMESPACE`: 如果推到 docker hub, 则是自己的 docker hub 账号(不带@email部分)，例如我的 wuyingbo
 
-`DOCKER_USER`: 如果推到 docker hub, 则是 docker hub 账号(不带@email部分)，例如我的 yingbo-wu
+`DOCKER_USER`: 如果推到 docker hub, 则是 docker hub 账号(不带@email部分)，例如我的 yingbo.wu
 
 `DOCKER_PASSWORD`: 如果推到 docker hub, 则是 docker hub 密码
 
