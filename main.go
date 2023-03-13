@@ -15,6 +15,7 @@ import (
     "text/template"
 
     "github.com/docker/docker/api/types"
+    "github.com/docker/docker/api/types/filters"
     "github.com/docker/docker/client"
     "github.com/google/go-github/v47/github"
     "golang.org/x/oauth2"
@@ -296,7 +297,7 @@ func dockerLogin(config *Config) (*client.Client, context.Context, error) {
 func dockerImages(imageName string, cli *client.Client, ctx context.Context) ([]types.ImageSummary, error) {
     fmt.Println("docker images, filter: ", imageName)
     images, err := cli.ImageList(ctx, types.ImageListOptions{
-        Filters: types.filters.Args{
+        Filters: filters.Args{
             reference: imageName,
         },
     })
