@@ -184,19 +184,19 @@ func mirrorByIssues(issues *github.Issue, config *Config) (err error, originImag
     originImageName = strings.TrimSpace(strings.Replace(*issues.Title, "[PORTER]", "", 1))
     targetImageName, err = genTargetImageName(originImageName, config)
     if err != nil {
-        return errors.New("@" + config.GhUser + " ,gen target image name 报错 `" + err.Error() + "`"), originImageName, targetImageName
+        return errors.New("@" + config.GhUser + " , gen target image name 报错 `" + err.Error() + "`"), originImageName, targetImageName
     }
 
     //execCmd("docker", "login", config.Registry, "-u", config.RegistryUserName, "-p", config.RegistryPassword)
     cli, ctx, err := dockerLogin(config)
     if err != nil {
-        return errors.New("@" + config.GhUser + " ,docker login 报错 `" + err.Error() + "`"), originImageName, targetImageName
+        return errors.New("@" + config.GhUser + " , docker login 报错 `" + err.Error() + "`"), originImageName, targetImageName
     }
 
     //execCmd("docker", "pull", originImageName)
     err = dockerPull(originImageName, cli, ctx)
     if err != nil {
-        return errors.New("@" + *issues.GetUser().Login + " ,docker pull 报错 `" + err.Error() + "`"), originImageName, targetImageName
+        return errors.New("@" + *issues.GetUser().Login + " , docker pull 报错 `" + err.Error() + "`"), originImageName, targetImageName
     }
 
     if strings.ContainsAny(originImageName, "@") {
@@ -206,13 +206,13 @@ func mirrorByIssues(issues *github.Issue, config *Config) (err error, originImag
     //execCmd("docker", "tag", originImageName, targetImageName)
     err = dockerTag(originImageName, targetImageName, cli, ctx)
     if err != nil {
-        return errors.New("@" + *issues.GetUser().Login + " ,docker tag 报错 `" + err.Error() + "`"), originImageName, targetImageName
+        return errors.New("@" + *issues.GetUser().Login + " , docker tag 报错 `" + err.Error() + "`"), originImageName, targetImageName
     }
 
     //execCmd("docker", "push", targetImageName)
     err = dockerPush(targetImageName, cli, ctx, config)
     if err != nil {
-        return errors.New("@" + *issues.GetUser().Login + " ,docker push 报错 `" + err.Error() + "`"), originImageName, targetImageName
+        return errors.New("@" + *issues.GetUser().Login + " , docker push 报错 `" + err.Error() + "`"), originImageName, targetImageName
     }
 
     return nil, originImageName, targetImageName
@@ -226,7 +226,7 @@ func genTargetImageName(originImageName string, config *Config) (string, error) 
         registrys = append(registrys, k)
     }
     if strings.EqualFold(targetImageName, originImageName) {
-        return "", errors.New("暂不支持同步" + originImageName + ",目前仅支持同步 `" + strings.Join(registrys, " ,") + "`镜像")
+        return "", errors.New("暂不支持同步: `" + originImageName + "`, 目前仅支持同步: `" + strings.Join(registrys, " ,") + "` 镜像")
     }
     targetImageName = strings.ReplaceAll(targetImageName, "/", ".")
     if len(config.RegistryNamespace) > 0 {
@@ -235,16 +235,16 @@ func genTargetImageName(originImageName string, config *Config) (string, error) 
     if len(config.Registry) > 0 {
         targetImageName = config.Registry + "/" + targetImageName
     }
-    fmt.Println("source:", originImageName, " , target:", targetImageName)
+    fmt.Println("source: ", originImageName, " , target: ", targetImageName)
     return targetImageName, nil
 }
 
 func genTargetImageNameByDigest(targetImageName string, cli *client.Client, ctx context.Context) string {
     imageNameSlice := strings.Split(targetImageName, "@")
-    fmt.Println("%#v\n", imageNameSlice)
     imageDigest := imageNameSlice[1]
     imageTagSlice := strings.Split(imageDigest, ":")
     targetImageName = imageNameSlice[0] + ":" + imageTagSlice[1]
+    fmt.Println("target: ", imageNameSlice)
     return targetImageName
 }
 
